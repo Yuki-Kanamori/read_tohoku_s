@@ -48,4 +48,6 @@ x3 = df3 %>% tidyr::gather(key = depth, value = number, 3:ncol(df1)) %>% mutate(
 summary(x3)
 x3[is.na(x3)] = 0
 
-X = left_join(x1 %>% select(-number), x2 %>% select(-number), x3 %>% select(-number), by = c("species", "net", "n_number"))
+if(nrow(x1)*3 - (nrow(x1)+nrow(x2)+nrow(x3)) == 0){
+  x = cbind(x1, x2 %>% select(station), x3 %>% select(depth))
+  }
