@@ -17,13 +17,21 @@ file_list = list.files(path, pattern="csv")
 # 2004a〜: また別の形式に
 # 1:8, 9:12, 13:24で条件分岐が必要
 # 
-file = file_list[1]
+file = file_list[7]
 # is_blank = function(x) {is.na(x) | x == ""}
 
 # df = read.table(file, sep=",", na.strings=c(' '), fileEncoding = "CP932")
+df = read.csv(file, na.strings = NULL, fileEncoding = "CP932")
 for(j in 1:3){
   assign(paste0('df', j),
          read.csv(file, na.strings = NULL, fileEncoding = "CP932", skip = j))
+}
+
+for(j in 1:3){
+  name = paste0('df', j)
+  data = get(name)
+  assign(paste0('df', j),
+         colnames(data)[2] = 'X')
 }
 
 # df1 = read.csv(file, na.strings = NULL, fileEncoding = "CP932", skip = 1)
@@ -76,12 +84,20 @@ path = "/Users/Yuki/Dropbox/sokouo1/全魚種csv/"
 file_list = list.files(path, pattern="csv")
 test = c()
 # (length(file_list)-1)
+
 for(i in 1:8){
   file = file_list[i]
   
   for(j in 1:3){
     assign(paste0('df', j),
            read.csv(file, na.strings = NULL, fileEncoding = "CP932", skip = j))
+  }
+  
+  for(j in 1:3){
+    name = paste0('df', j)
+    data = get(name)
+    assign(paste0('df', j),
+           colnames(data)[2] = 'X')
   }
   
   for(j in 1:3){
@@ -116,6 +132,7 @@ for(i in 1:8){
   
   test = rbind(test, x)
 }
+
 
 
 
