@@ -16,89 +16,17 @@ require(plyr)
 # directory -----------------------------------------------------
 setwd("/Users/Yuki/Dropbox/sokouo1/全魚種csv")
 
-# load the data -------------------------------------------------
-test = read.csv("全魚種1999a.csv", fileEncoding = "CP932")
-test2 = c()
-
-path = "/Users/Yuki/Dropbox/sokouo1/全魚種csv/"
-file_list = list.files(path, pattern="csv")
-# 
-# 2002a〜: 種の始まりがイレギュラー
-# 2004a〜: また別の形式に
-# 1:8, 9:12, 13:24で条件分岐が必要
-# 
-file = file_list[24]
-# is_blank = function(x) {is.na(x) | x == ""}
-
-# df = read.table(file, sep=",", na.strings=c(' '), fileEncoding = "CP932")
-df = read.csv(file, na.strings = NULL, fileEncoding = "CP932")
-for(j in 1:7){
-  assign(paste0('df', j),
-         read.csv(file, na.strings = NULL, fileEncoding = "CP932", skip = j))
-}
-for(j in 1:7){
-  name = paste0('df', j)
-  data = get(name)
-  assign(paste0('df', j),
-         data %>% filter(rowSums(is_blank(.)) != ncol(.)) %>% 
-           select_if(colSums(is_blank(.)) != nrow(.)))
-}
-df1 = df1[-c(1:7), ] #ymd
-df2 = df2[-c(1:6), ] #station
-df3 = df3[-c(1:5), ] #depth
-df4 = df4[-c(1:4), ] #station_code
-df5 = df5[-c(1:3), ] #net_no
-df6 = df6[-c(1:2), ] #net
-df7 = df7[-c(1:1), ] #data_type
-
-x1 = df1 %>% tidyr::gather(key = ymd, value = abundance, 2:ncol(df1)) %>% mutate(n_abundance = as.numeric(abundance)) %>% dplyr::rename(species = 年月日)
-summary(x1)
-x1[is.na(x1)] = 0
-
-x2 = df2 %>% tidyr::gather(key = station, value = abundance, 2:ncol(df2)) %>% mutate(n_abundance = as.numeric(abundance)) %>% dplyr::rename(species = 調査ライン)
-summary(x2)
-x2[is.na(x2)] = 0
-
-x3 = df3 %>% tidyr::gather(key = depth, value = abundance, 2:ncol(df3)) %>% mutate(n_abundance = as.numeric(abundance)) %>% dplyr::rename(species = 水深)
-summary(x3)
-x3[is.na(x3)] = 0
-
-colnames(df4)
-x4 = df4 %>% tidyr::gather(key = station_code, value = abundance, 2:ncol(df4)) %>% mutate(n_abundance = as.numeric(abundance)) %>% dplyr::rename(species = STATIONコード)
-summary(x4)
-x4[is.na(x4)] = 0
-
-colnames(df5)
-x5 = df5 %>% tidyr::gather(key = net_no, value = abundance, 2:ncol(df5)) %>% mutate(n_abundance = as.numeric(abundance)) %>% dplyr::rename(species = 網次)
-summary(x5)
-x5[is.na(x5)] = 0
-
-colnames(df6)
-x6 = df6 %>% tidyr::gather(key = net, value = abundance, 2:ncol(df6)) %>% mutate(n_abundance = as.numeric(abundance)) %>% dplyr::rename(species = 網)
-summary(x5)
-x5[is.na(x5)] = 0
-
-colnames(df7)
-x7 = df7 %>% tidyr::gather(key = data_type, value = abundance, 2:ncol(df7)) %>% mutate(n_abundance = as.numeric(abundance)) %>% dplyr::rename(species = データ種別)
-summary(x7)
-x7[is.na(x7)] = 0
-
-if(nrow(x1)*7 - (nrow(x1)+nrow(x2)+nrow(x3)+nrow(x4)+nrow(x5)+nrow(x6)+nrow(x7)) == 0){
-  x = cbind(x1, x2 %>% select(station), x3 %>% select(depth), x4 %>% select(station_code), x5 %>% select(net_no), x6 %>% select(net), x7 %>% select(data_type)) %>% mutate(file_name = file)
-}else{
-    warning(paste('please check the objects'))
-  }
-test2 = rbind(test2, x)
-
-
-
-# using loop function -----------------------------------------------------
+# make the dataframe -------------------------------------------------
 setwd("/Users/Yuki/Dropbox/sokouo1/全魚種csv")
 path = "/Users/Yuki/Dropbox/sokouo1/全魚種csv/"
 file_list = list.files(path, pattern="csv")
 dat = c()
 dat2 = c()
 # for(i in 1:(length(file_list)-1)){ #やけに重たくなるので，loopを分けた
+
+
+
+
 for(i in 1:8){  
   file = file_list[i]
   
@@ -305,18 +233,48 @@ d_dep[76,2] = 2000
 d_dep[77:nrow(d_dep), 2] = NA
 d = left_join(d, d_dep, by = "depth") %>% select(-depth)
 
+d2 = d2 %>% mutate(レグ = NA, 魚種NO = NA, 調査種類 = NA, 年 = as.numeric(str_sub(file_name, 4, 7))) %>% dplyr::rename(STATIONコード = station, 和名 = species, 網 = net, 実曳 = station_code)
+d2_ymd = d2 %>% distinct(ymd)
+d2 = d2 %>% mutate(月 = NA, 日 = NA) %>% select(-ymd, -abundance)
+d2_dep = d2 %>% distinct(depth) %>% mutate(水深 = as.numeric(str_sub(depth, 2, 5)))
+d2 = left_join(d2, d2_dep, by = "depth") %>% select(-depth)
+d2_netno = d2 %>% distinct(net_no) %>% mutate(網次 = as.numeric(str_sub(net_no, 2, 2)))
+d2 = left_join(d2, d2_netno, by = "net_no") %>% select(-net_no)
 
-d2 = d2 %>% mutate(レグ = NA, 魚種NO = NA, 調査種類 = NA, 年 = as.numeric(str_sub(file_name, 4, 7)), data_type = str_sub(file_name, 8, 8)) %>% dplyr::rename(STATIONコード = station, 水深 = depth, 和名 = species, 網 = net, 実曳 = , 網次 = net_no)
+head(d)
+head(d2)
+d = d %>% select(-data_type) %>% dplyr::rename(data_type = data_type2)
+old1998_2007 = rbind(d, d2) 
+
+
+# save the data -----------------------------------------------------------
+new_dir = paste0("/Users/Yuki/Dropbox/sokouo1/全魚種csv", '/output')
+dir.create(new_dir)
+setwd(new_dir)
+write.csv(old1998_2007, "全魚種1998-2007.csv", fileEncoding = "CP932")
+
+species_list = old1998_2007 %>% distinct(和名)
+write.csv(species_list, "species_list.csv", fileEncoding = "CP932")
 
 
 
-dat = dat %>% mutate(レグ = NA, net_no = NA, 魚種NO = NA, 調査種類 = NA) %>% dplyr::rename(STATIONコード = station, 水深 = depth, 和名 = species, 網 = net)
+# 2008年以降のデータに合わせる --------------------------------------------------------
+# 修正中
+# メモ --------------------------------------------------------
+# 尾数と重量が別ファイルで保存されている期間のデータでは，尾数列と重量列を横に並べるのは難しい可能性がある -------------------------------------------------------
+# d_n = d %>% filter(data_type == 'a') %>% dplyr::rename(漁獲尾数 = n_abundance)
+d_n = d %>% filter(data_type == 'a')
+colnames(d_n)[3] = "漁獲尾数"
+summary(d_n)
+# d_w = d %>% filter(data_type == 'b') %>% dplyr::rename(漁獲量 = n_abundance)
+d_w = d %>% filter(data_type == 'b')
+colnames(d_w)[3] = "漁獲量"
+summary(d_w)
 
-実曳 = station_code, 
-
-
-
-
+# colnames(d_n)
+# d = left_join(d_n, d_w, by = c("和名", "網", "STATIONコード", "file_name", "レグ", "網次", "魚種NO", "調査種類", "実曳", "年", "月", "日", "水深"))
+# 
+# d = left_join(d_n, d_w, by = c("レグ", "年", "月", "日", "実曳", "調査種類", "STATIONコード", "水深", "網次", "網", "魚種NO", "和名", "漁獲尾数", "漁獲量", "file_name"))
 
 
 
