@@ -17,7 +17,7 @@ file_list = list.files(path, pattern="csv")
 # 2004a〜: また別の形式に
 # 1:8, 9:12, 13:24で条件分岐が必要
 # 
-file = file_list[8]
+file = file_list[7]
 # is_blank = function(x) {is.na(x) | x == ""}
 
 # df = read.table(file, sep=",", na.strings=c(' '), fileEncoding = "CP932")
@@ -27,9 +27,11 @@ for(j in 1:3){
          read.csv(file, na.strings = NULL, fileEncoding = "CP932", skip = j))
 }
  
-colnames(df2)[1] = 'X'
 colnames(df2)[2] = 'X'
-colnames(df2)[3] = 'X'
+
+df1 = df1[-c(30:31), ] 
+df2 = df2[-c(29:30), ] 
+df3 = df3[-c(28:29), ] 
 
 # df1 = read.csv(file, na.strings = NULL, fileEncoding = "CP932", skip = 1)
 # df2 = read.csv(file, na.strings = NULL, fileEncoding = "CP932", skip = 2)
@@ -59,8 +61,9 @@ summary(x1)
 x1[is.na(x1)] = 0
 
 x2 = df2 %>% tidyr::gather(key = station, value = number, 3:ncol(df2)) %>% mutate(n_number = as.numeric(number)) %>% dplyr::rename(species = STATIONコード, net = X)
+x2 = df2 %>% mutate(X2 = as.character(as.factor(df2$X))) %>% tidyr::gather(key = station, value = number, 3:ncol(df2)) %>% mutate(n_number = as.numeric(number)) %>% dplyr::rename(species = STATIONコード, net = X2) %>% select(-X)
 summary(x2)
-x1[is.na(x2)] = 0
+x2[is.na(x2)] = 0
 
 x3 = df3 %>% tidyr::gather(key = depth, value = number, 3:ncol(df1)) %>% mutate(n_number = as.numeric(number)) %>% dplyr::rename(species = 水深, net = X)
 summary(x3)
@@ -71,6 +74,7 @@ if(nrow(x1)*3 - (nrow(x1)+nrow(x2)+nrow(x3)) == 0){
 }else{
     warning(paste('please check the objects'))
   }
+nrow(df1)
 
 
 
@@ -81,6 +85,102 @@ path = "/Users/Yuki/Dropbox/sokouo1/全魚種csv/"
 file_list = list.files(path, pattern="csv")
 test = c()
 # (length(file_list)-1)
+for(i in 1:8){
+  file = file_list[i]
+  
+  if(i < 7){
+    for(j in 1:3){
+      assign(paste0('df', j),
+             read.csv(file, na.strings = NULL, fileEncoding = "CP932", skip = j))
+    }
+    
+    for(j in 1:3){
+      name = paste0('df', j)
+      data = get(name)
+      assign(paste0('df', j),
+             data %>% filter(rowSums(is_blank(.)) != ncol(.)) %>% 
+               select_if(colSums(is_blank(.)) != nrow(.)))
+    }
+    
+    df1 = df1[-c(1:3), ] #number
+    df2 = df2[-c(1:2), ] #station
+    df3 = df3[-1, ] #depth
+    
+    x1 = df1 %>% tidyr::gather(key = ymd, value = number, 3:ncol(df1)) %>% mutate(n_number = as.numeric(number)) %>% dplyr::rename(species = 年月日, net = X)
+    summary(x1)
+    x1[is.na(x1)] = 0
+    
+    x2 = df2 %>% tidyr::gather(key = station, value = number, 3:ncol(df2)) %>% mutate(n_number = as.numeric(number)) %>% dplyr::rename(species = STATIONコード, net = X)
+    summary(x2)
+    x2[is.na(x2)] = 0
+    
+    x3 = df3 %>% tidyr::gather(key = depth, value = number, 3:ncol(df1)) %>% mutate(n_number = as.numeric(number)) %>% dplyr::rename(species = 水深, net = X)
+    summary(x3)
+    x3[is.na(x3)] = 0
+    
+    if(nrow(x1)*3 - (nrow(x1)+nrow(x2)+nrow(x3)) == 0){
+      x = cbind(x1, x2 %>% select(station), x3 %>% select(depth)) %>% mutate(file_name = file)
+    }else{
+      warning(paste('please check the objects'))
+    }
+    
+    test = rbind(test, x)
+  }
+  
+  if(i > 6 && i < 9){
+    for(j in 1:3){
+      assign(paste0('df', j),
+             read.csv(file, na.strings = NULL, fileEncoding = "CP932", skip = j))
+    }
+    
+    colnames(df2)[2] = 'X'
+    
+    df1 = df1[-c(30:31), ] 
+    df2 = df2[-c(29:30), ] 
+    df3 = df3[-c(28:29), ] 
+    
+    df1 = df1[-c(1:3), ] #number
+    df2 = df2[-c(1:2), ] #station
+    df3 = df3[-1, ] #depth
+    
+    x1 = df1 %>% tidyr::gather(key = ymd, value = number, 3:ncol(df1)) %>% mutate(n_number = as.numeric(number)) %>% dplyr::rename(species = 年月日, net = X)
+    summary(x1)
+    x1[is.na(x1)] = 0
+    
+    x2 = df2 %>% mutate(X2 = as.character(as.factor(df2$X))) %>% tidyr::gather(key = station, value = number, 3:ncol(df2)) %>% mutate(n_number = as.numeric(number)) %>% dplyr::rename(species = STATIONコード, net = X2) %>% select(-X)
+    summary(x2)
+    x2[is.na(x2)] = 0
+    
+    x3 = df3 %>% tidyr::gather(key = depth, value = number, 3:ncol(df1)) %>% mutate(n_number = as.numeric(number)) %>% dplyr::rename(species = 水深, net = X)
+    summary(x3)
+    x3[is.na(x3)] = 0
+    
+    if(nrow(x1)*3 - (nrow(x1)+nrow(x2)+nrow(x3)) == 0){
+      x = cbind(x1, x2 %>% select(station), x3 %>% select(depth)) %>% mutate(file_name = file)
+    }else{
+      warning(paste('please check the objects'))
+    }
+  }
+  
+  
+  if(i > 8 && i < 13){
+    
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 for(i in 1:6){
   # i = 3
