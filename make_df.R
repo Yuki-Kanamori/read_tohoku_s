@@ -9,9 +9,7 @@
 
 
 # packages ------------------------------------------------------
-require(data.table)
 require(tidyverse)
-require(plyr)
 
 # directory -----------------------------------------------------
 setwd("/Users/Yuki/Dropbox/sokouo1/全魚種csv")
@@ -222,18 +220,6 @@ summary(dat3)
 d = dat
 d2 = dat2
 
-
-# fixed bugs --------------------------------------------------------------
-d_net = d %>% select(net) %>% 
-
-
-
-
-
-
-
-
-
 d = d %>% mutate(レグ = NA, 網次 = NA, 魚種NO = NA, 調査種類 = NA, 実曳 = NA, 年 = as.numeric(str_sub(file_name, 4, 7)), data_type = str_sub(file_name, 8, 8)) %>% dplyr::rename(STATIONコード = station, 和名 = species, 網 = net)
 d = d %>% mutate(data_type2 = ifelse(d$data_type == "a", '漁獲尾数', '漁獲量'))
 summary(d)
@@ -257,17 +243,6 @@ head(d)
 head(d2)
 d = d %>% select(-data_type) %>% dplyr::rename(data_type = data_type2)
 old1998_2007 = rbind(d, d2) 
-
-
-
-# bug ---------------------------------------------------------------------
-net = old1998_2007 %>% select("網") %>% distinct()
-colnames(net)[1] = "net"
-net$網 = str_sub(net, 1,1)
-net = net %>% mutate(net = str_sub(net$網, 1, 1))
-
-
-
 
 # save the data -----------------------------------------------------------
 new_dir = paste0("/Users/Yuki/Dropbox/sokouo1/全魚種csv", '/output')
