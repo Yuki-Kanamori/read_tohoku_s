@@ -102,19 +102,19 @@ for(i in 1:8){
                select_if(colSums(is_blank(.)) != nrow(.)))
     }
     
-    df1 = df1[-c(1:3), ] #number
+    df1 = df1[-c(1:3), ] #abundance
     df2 = df2[-c(1:2), ] #station
     df3 = df3[-1, ] #depth
     
-    x1 = df1 %>% tidyr::gather(key = ymd, value = number, 3:ncol(df1)) %>% mutate(n_number = as.numeric(number)) %>% dplyr::rename(species = 年月日, net = X)
+    x1 = df1 %>% tidyr::gather(key = ymd, value = abundance, 3:ncol(df1)) %>% mutate(n_abundance = as.numeric(abundance)) %>% dplyr::rename(species = 年月日, net = X)
     summary(x1)
     x1[is.na(x1)] = 0
     
-    x2 = df2 %>% tidyr::gather(key = station, value = number, 3:ncol(df2)) %>% mutate(n_number = as.numeric(number)) %>% dplyr::rename(species = STATIONコード, net = X)
+    x2 = df2 %>% tidyr::gather(key = station, value = abundance, 3:ncol(df2)) %>% mutate(n_abundance = as.numeric(abundance)) %>% dplyr::rename(species = STATIONコード, net = X)
     summary(x2)
     x2[is.na(x2)] = 0
     
-    x3 = df3 %>% tidyr::gather(key = depth, value = number, 3:ncol(df1)) %>% mutate(n_number = as.numeric(number)) %>% dplyr::rename(species = 水深, net = X)
+    x3 = df3 %>% tidyr::gather(key = depth, value = abundance, 3:ncol(df1)) %>% mutate(n_abundance = as.numeric(abundance)) %>% dplyr::rename(species = 水深, net = X)
     summary(x3)
     x3[is.na(x3)] = 0
     
@@ -139,19 +139,19 @@ for(i in 1:8){
     df2 = df2[-c(29:30), ] 
     df3 = df3[-c(28:29), ] 
     
-    df1 = df1[-c(1:3), ] #number
+    df1 = df1[-c(1:3), ] #abundance
     df2 = df2[-c(1:2), ] #station
     df3 = df3[-1, ] #depth
     
-    x1 = df1 %>% tidyr::gather(key = ymd, value = number, 3:ncol(df1)) %>% mutate(n_number = as.numeric(number)) %>% dplyr::rename(species = 年月日, net = X)
+    x1 = df1 %>% tidyr::gather(key = ymd, value = abundance, 3:ncol(df1)) %>% mutate(n_abundance = as.numeric(abundance)) %>% dplyr::rename(species = 年月日, net = X)
     summary(x1)
     x1[is.na(x1)] = 0
     
-    x2 = df2 %>% mutate(X2 = as.character(as.factor(df2$X))) %>% tidyr::gather(key = station, value = number, 3:ncol(df2)) %>% mutate(n_number = as.numeric(number)) %>% dplyr::rename(species = STATIONコード, net = X2) %>% select(-X)
+    x2 = df2 %>% mutate(X2 = as.character(as.factor(df2$X))) %>% tidyr::gather(key = station, value = abundance, 3:ncol(df2)) %>% mutate(n_abundance = as.numeric(abundance)) %>% dplyr::rename(species = STATIONコード, net = X2) %>% select(-X)
     summary(x2)
     x2[is.na(x2)] = 0
     
-    x3 = df3 %>% tidyr::gather(key = depth, value = number, 3:ncol(df1)) %>% mutate(n_number = as.numeric(number)) %>% dplyr::rename(species = 水深, net = X)
+    x3 = df3 %>% tidyr::gather(key = depth, value = abundance, 3:ncol(df1)) %>% mutate(n_abundance = as.numeric(abundance)) %>% dplyr::rename(species = 水深, net = X)
     summary(x3)
     x3[is.na(x3)] = 0
     
