@@ -253,10 +253,16 @@ dir.create(new_dir)
 setwd(new_dir)
 write.csv(old1998_2007, "全魚種1998-2007.csv", fileEncoding = "CP932")
 
-species_list = old1998_2007 %>% distinct(和名)
-write.csv(species_list, "species_list.csv", fileEncoding = "CP932")
+sp_list = old1998_2007 %>% distinct(和名)
+sp_list = sp_list[-c(679:684), ] %>% as.data.frame()
+colnames(sp_list)[1] = "和名"
+sp_list = sp_list %>% filter(和名 != "あ行", 和名 != "か行", 和名 != "さ行", 和名 != "た行", 和名 != "な行", 和名 != "は行", 和名 != "ま行", 和名 != "や行", 和名 != "ら行", 和名 != "わ行")
+# write.csv(sp_list, "species_list_old.csv", fileEncoding = "CP932")
 
-
+sp_list2 = dat3 %>% distinct(和名)
+sp_all = rbind(sp_list, sp_list2) %>% distinct(和名) %>% dplyr::arrange(和名) %>% filter(rowSums(is_blank(.)) != ncol(.)) %>% 
+  select_if(colSums(is_blank(.)) != nrow(.))
+write.csv(sp_all, "splist_all.csv", fileEncoding = "CP932")
 
 # 2008年以降のデータに合わせる --------------------------------------------------------
 # 修正中
