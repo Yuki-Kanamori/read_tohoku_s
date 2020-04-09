@@ -264,6 +264,7 @@ sp_all = rbind(sp_list, sp_list2) %>% distinct(和名) %>% dplyr::arrange(和名
   select_if(colSums(is_blank(.)) != nrow(.))
 write.csv(sp_all, "splist_all.csv", fileEncoding = "CP932")
 
+
 # 2008年以降のデータに合わせる --------------------------------------------------------
 # 修正中
 # メモ --------------------------------------------------------
